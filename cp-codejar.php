@@ -87,7 +87,7 @@ function emojized_codejar_inline_script_for_plugin_editor() {
                     textarea.style.display = "none"; // Hide the textarea
 
                     // Initialize CodeJar editor on the div
-                    let jar = CodeJar(document.querySelector("#newcontent"), highlight);
+                    let jar = CodeJar(document.querySelector("#codejar-editor"), highlight);
 
                     // Sync CodeJar editor content with the textarea
                     jar.onUpdate(function (code) {
