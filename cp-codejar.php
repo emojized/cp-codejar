@@ -3,13 +3,13 @@
  * Plugin Name:       codejar Code Editor
  * Plugin URI:        https://github.com/emojized/ace-c9-editor
  * Description:       Replacing the WP/CP Code Editor with the CodeJar Editor
- * Version:           1.0
+ * Version:           0.1
  * Requires at least: 4.9.15
  * Requires PHP:      7.4
  * Requires CP:       2.2
  * Author:            The emojized Team
  * Author URI:        https://emojized.com
- * License:           GPL v2 and BSD
+ * License:           GPL v2 and MIT
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -75,10 +75,24 @@ function emojized_codejar_inline_script_for_plugin_editor() {
         wp_add_inline_script(
             'codejar-editor', // Dependency on codejar-editor
             '
+            document.addEventListener("DOMContentLoaded", function() {
+                var textarea = document.querySelector("textarea#newcontent"); // Adjust selector as needed
+                if (textarea) {
+                    // Create a div to replace the textarea
+                    var div = document.createElement("div");
+                    div.id = "codejar-editor";
+                    div.style.width = "100%";
+                    div.style.height = "500px"; // Adjust height as needed
+                    textarea.parentNode.insertBefore(div, textarea);
+                    textarea.style.display = "none"; // Hide the textarea
 
                     // Initialize CodeJar editor on the div
-                    var jar = CodeJar(document.querySelector("div"), highlight);
+                    let jar = CodeJar(document.querySelector("#newcontent"), highlight);
 
+                    // Sync CodeJar editor content with the textarea
+                    jar.onUpdate(function (code) {
+                        textarea.value = code;
+                    });
                 }
             });
             ' // The actual inline script
