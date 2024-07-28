@@ -3,13 +3,13 @@
  * Plugin Name:       codejar Code Editor
  * Plugin URI:        https://github.com/emojized/ace-c9-editor
  * Description:       Replacing the WP/CP Code Editor with the CodeJar Editor
- * Version:           0.1
+ * Version:           1.0
  * Requires at least: 4.9.15
  * Requires PHP:      7.4
  * Requires CP:       2.2
  * Author:            The emojized Team
  * Author URI:        https://emojized.com
- * License:           GPL v2 and MIT
+ * License:           GPL v2 and BSD
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -69,36 +69,31 @@ function emojized_codejar_inline_script_for_plugin_editor() {
     // Check if we are on the plugin-editor.php or theme-editor.php page
     if ($current_screen->base === 'plugin-editor' || $current_screen->base === 'theme-editor') {
         // Ensure codejar-editor script is enqueued
-        wp_enqueue_script('codejar-editor');
+        //wp_enqueue_script('codejar-editor');
 
-        // Enqueue the inline script
-        wp_add_inline_script(
-            'codejar-editor', // Dependency on codejar-editor
-            '
-            document.addEventListener("DOMContentLoaded", function() {
-                var textarea = document.querySelector("textarea#newcontent"); // Adjust selector as needed
-                if (textarea) {
-                    // Create a div to replace the textarea
-                    var div = document.createElement("div");
-                    div.id = "codejar-editor";
-                    div.style.width = "100%";
-                    div.style.height = "500px"; // Adjust height as needed
-                    textarea.parentNode.insertBefore(div, textarea);
-                    textarea.style.display = "none"; // Hide the textarea
+        ?>
+<script type="module">
+  import {CodeJar} from '<?php echo plugins_url('cp-codejar/codejar.min.js');?>'
+  const editor = document.querySelector('#newcontent')
 
-                    // Initialize CodeJar editor on the div
-                    let jar = CodeJar(document.querySelector("#codejar-editor"), highlight);
+  const highlight = editor => {
+    editor.innerHTML = Prism.highlight(editor.textContent, Prism.languages.javascript, 'javascript')
+  }
 
-                    // Sync CodeJar editor content with the textarea
-                    jar.onUpdate(function (code) {
-                        textarea.value = code;
-                    });
-                }
-            });
-            ' // The actual inline script
-        );
-    }
+  const jar = CodeJar(editor, highlight, {
+    tab: '  ',
+  })
+
+  jar.updateCode(localStorage.getItem('code'))
+  jar.onUpdate(code => {
+    localStorage.setItem('code', code)
+  })
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+        <?php }
 }
 // Hook into admin_enqueue_scripts
-add_action('admin_enqueue_scripts', 'emojized_codejar_inline_script_for_plugin_editor');
+add_action('admin_footer', 'emojized_codejar_inline_script_for_plugin_editor');
 
